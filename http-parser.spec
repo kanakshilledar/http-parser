@@ -3,7 +3,7 @@
 
 Name:           http-parser
 Version:        %{somajor}.%{sominor}
-Release:        4.20100911git%{?dist}
+Release:        5.20100911git%{?dist}
 Summary:        HTTP request/response parser for C
 
 Group:          System Environment/Libraries
@@ -13,6 +13,8 @@ URL:            http://github.com/ry/http-parser
 # cd http-parser/
 # git archive 459507f5 --prefix=http-parser/ |gzip -9 >../http-parser.tar.gz
 Source0:        http-parser.tar.gz
+Patch0:         0001-Add-support-for-M-SEARCH-and-NOTIFY-request-methods.patch
+Patch1:         0002-Added-support-for-SUBSCRIBE-and-UNSUBSCRIBE-request-.patch
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %description
@@ -35,6 +37,8 @@ Development headers and libraries for htt-parser.
 
 %prep
 %setup -q -n %{name}
+%patch0 -p1
+%patch1 -p1
 
 
 %build
@@ -78,6 +82,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jan 11 2011 Lubomir Rintel <lkundrak@v3.sk> - 0.3-5.20100911git
+- Add support for methods used by node.js
+
 * Thu Nov  4 2010 Dan Horák <dan[at]danny.cz> - 0.3-4.20100911git
 - build with -fsigned-char
 

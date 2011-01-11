@@ -1,0 +1,63 @@
+From f825b52b7f2d4bf86c3300ae33ceb3dd1fa64571 Mon Sep 17 00:00:00 2001
+From: Nathan Rajlich <nathan@tootallnate.net>
+Date: Tue, 12 Oct 2010 14:09:34 -0700
+Subject: [PATCH 2/2] Added support for "SUBSCRIBE" and "UNSUBSCRIBE" request methods.
+
+---
+ http_parser.c |    7 ++++++-
+ http_parser.h |    4 +++-
+ 2 files changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/http_parser.c b/http_parser.c
+index 57a1b94..5a0972a 100644
+--- a/http_parser.c
++++ b/http_parser.c
+@@ -95,6 +95,8 @@ static const char *method_strings[] =
+   , "MERGE"
+   , "M-SEARCH"
+   , "NOTIFY"
++  , "SUBSCRIBE"
++  , "UNSUBSCRIBE"
+   };
+ 
+ 
+@@ -582,8 +584,9 @@ size_t http_parser_execute (http_parser *parser,
+           case 'O': parser->method = HTTP_OPTIONS; break;
+           case 'P': parser->method = HTTP_POST; /* or PROPFIND or PROPPATCH or PUT */ break;
+           case 'R': parser->method = HTTP_REPORT; break;
++          case 'S': parser->method = HTTP_SUBSCRIBE; break;
+           case 'T': parser->method = HTTP_TRACE; break;
+-          case 'U': parser->method = HTTP_UNLOCK; break;
++          case 'U': parser->method = HTTP_UNLOCK; /* or UNSUBSCRIBE */ break;
+           default: goto error;
+         }
+         state = s_req_method;
+@@ -620,6 +623,8 @@ size_t http_parser_execute (http_parser *parser,
+           parser->method = HTTP_PROPFIND; /* or HTTP_PROPPATCH */
+         } else if (index == 1 && parser->method == HTTP_POST && ch == 'U') {
+           parser->method = HTTP_PUT;
++        } else if (index == 2 && parser->method == HTTP_UNLOCK && ch == 'S') {
++          parser->method = HTTP_UNSUBSCRIBE;
+         } else if (index == 4 && parser->method == HTTP_PROPFIND && ch == 'P') {
+           parser->method = HTTP_PROPPATCH;
+         } else {
+diff --git a/http_parser.h b/http_parser.h
+index 43cc1bd..c03ec05 100644
+--- a/http_parser.h
++++ b/http_parser.h
+@@ -101,9 +101,11 @@ enum http_method
+   , HTTP_MKACTIVITY
+   , HTTP_CHECKOUT
+   , HTTP_MERGE
+-  /* ssdp */
++  /* upnp */
+   , HTTP_MSEARCH
+   , HTTP_NOTIFY
++  , HTTP_SUBSCRIBE
++  , HTTP_UNSUBSCRIBE
+   };
+ 
+ 
+-- 
+1.7.3.4
+
