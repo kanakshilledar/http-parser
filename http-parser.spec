@@ -4,7 +4,7 @@
 
 Name:           http-parser
 Version:        %{somajor}.%{sominor}
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        HTTP request/response parser for C
 
 Group:          System Environment/Libraries
@@ -77,6 +77,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Mon Aug 22 2011 T.C. Hollingsworth <tchollingsworth@gmail.com> - 1.0-1
 - New upstream release 1.0
 - Remove patches, no longer needed for nodejs
