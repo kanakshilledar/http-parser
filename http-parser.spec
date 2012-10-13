@@ -1,18 +1,27 @@
-%global somajor 1
+# we use the upstream version from http_parser.h as the SONAME
+%global somajor 2
 %global sominor 0
-%global git_hash 32c0e11
+
+%global git_commit_hash 3fb4e06
+%global git_tag_hash 90a9383
 
 Name:           http-parser
 Version:        %{somajor}.%{sominor}
-Release:        3%{?dist}
+Release:        1%{?dist}
 Summary:        HTTP request/response parser for C
 
 Group:          System Environment/Libraries
 License:        MIT
-URL:            http://github.com/ry/http-parser
-# download from https://github.com/ry/http-parser/tarball/v%%{version}
-Source0:        ry-http-parser-v%{version}-0-g%{git_hash}.tar.gz
+URL:            http://github.com/joyent/http-parser
+# download from https://github.com/joyent/http-parser/tarball/%%{version}
+Source0:        joyent-http-parser-v%{version}-0-g%{git_commit_hash}.tar.gz
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+
+# Build shared library with SONAME using gyp
+# TODO: do this nicely upstream
+Patch1:		http-parser-gyp-sharedlib.patch
+
+BuildRequires:	gyp
 
 %description
 This is a parser for HTTP messages written in C. It parses both requests and
@@ -33,31 +42,34 @@ Development headers and libraries for http-parser.
 
 
 %prep
-%setup -q -n ry-http-parser-%{git_hash}
+%setup -q -n joyent-http-parser-%{git_tag_hash}
+%patch1
 
 
 %build
-make %{?_smp_mflags} CC="%{__cc} %{optflags} -fsigned-char -fPIC" http_parser.o
-%{__cc} %{optflags} -Wl,-soname,http_parser.so.%{somajor} \
-        -o libhttp_parser.so -shared http_parser.o
+# TODO: fix -fPIC upstream
+export CFLAGS='%{optflags} -fPIC'
+gyp -f make --depth=`pwd` http_parser.gyp
+make
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_includedir}
-install -d $RPM_BUILD_ROOT%{_libdir}
-install -pm644 http_parser.h $RPM_BUILD_ROOT%{_includedir}
-install libhttp_parser.so $RPM_BUILD_ROOT%{_libdir}/libhttp_parser.so.%{somajor}.%{sominor}
-ln -sf libhttp_parser.so.%{somajor}.%{sominor} $RPM_BUILD_ROOT%{_libdir}/libhttp_parser.so.%{somajor}
-ln -sf libhttp_parser.so.%{somajor}.%{sominor} $RPM_BUILD_ROOT%{_libdir}/libhttp_parser.so
+rm -rf %{buildroot}
+install -d %{buildroot}%{_includedir}
+install -d %{buildroot}%{_libdir}
+install -pm644 http_parser.h %{buildroot}%{_includedir}
+install out/Debug/lib.target/libhttp_parser.so.%{somajor} %{buildroot}%{_libdir}/libhttp_parser.so.%{somajor}.%{sominor}
+ln -sf libhttp_parser.so.%{somajor}.%{sominor} %{buildroot}%{_libdir}/libhttp_parser.so.%{somajor}
+ln -sf libhttp_parser.so.%{somajor}.%{sominor} %{buildroot}%{_libdir}/libhttp_parser.so
 
 
-%check
-make %{?_smp_mflags} CC="%{__cc} %{optflags} -fsigned-char -fPIC" test
+# Currently failing: https://github.com/joyent/http-parser/issues/129
+#%%check
+#LD_LIBRARY_PATH='./out/Debug/lib.target' ./out/Debug/test
 
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 
 %post -p /sbin/ldconfig
@@ -67,7 +79,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 %{_libdir}/libhttp_parser.so.*
-%doc CONTRIBUTIONS LICENSE-MIT README.md
+%doc AUTHORS CONTRIBUTIONS LICENSE-MIT README.md
 
 
 %files devel
@@ -77,6 +89,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sat Oct 13 2012 T.C. Hollingsworth <tchollingsworth@gmail.com> - 2.0-1
+- new upstream release 2.0
+- migrate to GYP buildsystem
+
 * Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 

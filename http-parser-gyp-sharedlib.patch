@@ -1,0 +1,12 @@
+--- http_parser.gyp~	2012-10-13 13:41:21.371501965 -0700
++++ http_parser.gyp	2012-10-13 13:41:21.381502101 -0700
+@@ -48,7 +48,8 @@
+   'targets': [
+     {
+       'target_name': 'http_parser',
+-      'type': 'static_library',
++      'type': 'shared_library',
++      'product_extension': 'so.2',
+       'include_dirs': [ '.' ],
+       'direct_dependent_settings': {
+         'include_dirs': [ '.' ],
