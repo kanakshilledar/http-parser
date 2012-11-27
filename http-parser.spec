@@ -2,22 +2,23 @@
 %global somajor 2
 %global sominor 0
 
-%global git_commit_hash 3fb4e06
-%global git_tag_hash 90a9383
+%global git_date 20121110
+%global git_commit_hash 245f6f0
+%global github_seq 5
 
 Name:           http-parser
 Version:        %{somajor}.%{sominor}
-Release:        1%{?dist}
+Release:        2.%{git_date}git%{git_commit_hash}%{?dist}
 Summary:        HTTP request/response parser for C
 
 Group:          System Environment/Libraries
 License:        MIT
 URL:            http://github.com/joyent/http-parser
 # download from https://github.com/joyent/http-parser/tarball/%%{version}
-Source0:        joyent-http-parser-v%{version}-0-g%{git_commit_hash}.tar.gz
+Source0:        joyent-http-parser-v%{version}-%{github_seq}-g%{git_commit_hash}.tar.gz
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
-# Build shared library with SONAME using gyp
+# Build shared library with SONAME using gyp and remove -O flags so optflags take over
 # TODO: do this nicely upstream
 Patch1:		http-parser-gyp-sharedlib.patch
 
@@ -42,7 +43,7 @@ Development headers and libraries for http-parser.
 
 
 %prep
-%setup -q -n joyent-http-parser-%{git_tag_hash}
+%setup -q -n joyent-http-parser-%{git_commit_hash}
 %patch1
 
 
@@ -50,22 +51,33 @@ Development headers and libraries for http-parser.
 # TODO: fix -fPIC upstream
 export CFLAGS='%{optflags} -fPIC'
 gyp -f make --depth=`pwd` http_parser.gyp
-make
+make %{?_smp_mflags} BUILDTYPE=Release 
 
 
 %install
 rm -rf %{buildroot}
+
 install -d %{buildroot}%{_includedir}
 install -d %{buildroot}%{_libdir}
+
 install -pm644 http_parser.h %{buildroot}%{_includedir}
-install out/Debug/lib.target/libhttp_parser.so.%{somajor} %{buildroot}%{_libdir}/libhttp_parser.so.%{somajor}.%{sominor}
+
+#install regular variant
+install out/Release/lib.target/libhttp_parser.so.%{somajor} %{buildroot}%{_libdir}/libhttp_parser.so.%{somajor}.%{sominor}
 ln -sf libhttp_parser.so.%{somajor}.%{sominor} %{buildroot}%{_libdir}/libhttp_parser.so.%{somajor}
 ln -sf libhttp_parser.so.%{somajor}.%{sominor} %{buildroot}%{_libdir}/libhttp_parser.so
 
+#install strict variant
+install out/Release/lib.target/libhttp_parser_strict.so.%{somajor} %{buildroot}%{_libdir}/libhttp_parser_strict.so.%{somajor}.%{sominor}
+ln -sf libhttp_parser_strict.so.%{somajor}.%{sominor} %{buildroot}%{_libdir}/libhttp_parser_strict.so.%{somajor}
+ln -sf libhttp_parser_strict.so.%{somajor}.%{sominor} %{buildroot}%{_libdir}/libhttp_parser_strict.so
+
 
 # Currently failing: https://github.com/joyent/http-parser/issues/129
-#%%check
-#LD_LIBRARY_PATH='./out/Debug/lib.target' ./out/Debug/test
+%check
+export LD_LIBRARY_PATH='./out/Release/lib.target' 
+./out/Release/test-nonstrict
+./out/Release/test-strict
 
 
 %clean
@@ -79,6 +91,7 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %{_libdir}/libhttp_parser.so.*
+%{_libdir}/libhttp_parser_strict.so.*
 %doc AUTHORS CONTRIBUTIONS LICENSE-MIT README.md
 
 
@@ -86,9 +99,17 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %{_includedir}/*
 %{_libdir}/libhttp_parser.so
+%{_libdir}/libhttp_parser_strict.so
 
 
 %changelog
+* Tue Nov 27 2012 T.C. Hollingsworth <tchollingsworth@gmail.com> - 2.0-2.20121110git245f6f0
+- latest git snapshot
+- fixes tests
+- use SMP make flags
+- build as Release instead of Debug
+- ship new strict variant
+
 * Sat Oct 13 2012 T.C. Hollingsworth <tchollingsworth@gmail.com> - 2.0-1
 - new upstream release 2.0
 - migrate to GYP buildsystem
