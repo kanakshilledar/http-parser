@@ -2,13 +2,13 @@
 %global somajor 2
 %global sominor 0
 
-%global git_date 20121110
-%global git_commit_hash 245f6f0
-%global github_seq 5
+%global git_date 20121128
+%global git_commit_hash cd01361
+%global github_seq 7
 
 Name:           http-parser
 Version:        %{somajor}.%{sominor}
-Release:        2.%{git_date}git%{git_commit_hash}%{?dist}
+Release:        3.%{git_date}git%{git_commit_hash}%{?dist}
 Summary:        HTTP request/response parser for C
 
 Group:          System Environment/Libraries
@@ -73,12 +73,10 @@ ln -sf libhttp_parser_strict.so.%{somajor}.%{sominor} %{buildroot}%{_libdir}/lib
 ln -sf libhttp_parser_strict.so.%{somajor}.%{sominor} %{buildroot}%{_libdir}/libhttp_parser_strict.so
 
 
-# Tests still failing, possibly due to FORTIFY_SOURCE
-# https://github.com/joyent/http-parser/issues/136
-#%%check
-#export LD_LIBRARY_PATH='./out/Release/lib.target' 
-#./out/Release/test-nonstrict
-#./out/Release/test-strict
+%check
+export LD_LIBRARY_PATH='./out/Release/lib.target' 
+./out/Release/test-nonstrict
+./out/Release/test-strict
 
 
 %clean
@@ -104,8 +102,13 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sun Dec 02 2012 T.C. Hollingsworth <tchollingsworth@gmail.com> - 2.0-3.20121128gitcd01361
+- latest git snapshot
+- fixes buffer overflow in tests
+
 * Tue Nov 27 2012 T.C. Hollingsworth <tchollingsworth@gmail.com> - 2.0-2.20121110git245f6f0
 - latest git snapshot
+- fixes tests
 - use SMP make flags
 - build as Release instead of Debug
 - ship new strict variant
