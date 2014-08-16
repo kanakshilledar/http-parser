@@ -8,7 +8,7 @@
 
 Name:           http-parser
 Version:        %{somajor}.%{sominor}
-Release:        6.%{git_date}git%{git_commit_hash}%{?dist}
+Release:        7.%{git_date}git%{git_commit_hash}%{?dist}
 Summary:        HTTP request/response parser for C
 
 Group:          System Environment/Libraries
@@ -102,6 +102,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sat Aug 16 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.0-7.20121128gitcd01361
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
 * Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.0-6.20121128gitcd01361
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
