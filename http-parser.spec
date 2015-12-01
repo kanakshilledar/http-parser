@@ -1,21 +1,18 @@
 # we use the upstream version from http_parser.h as the SONAME
 %global somajor 2
-%global sominor 0
-
-%global git_date 20121128
-%global git_commit_hash cd01361
-%global github_seq 7
+%global sominor 6
+%global sopoint 0
 
 Name:           http-parser
-Version:        %{somajor}.%{sominor}
-Release:        9.%{git_date}git%{git_commit_hash}%{?dist}
+Version:        %{somajor}.%{sominor}.%{sopoint}
+Release:        1%{?dist}
 Summary:        HTTP request/response parser for C
 
 Group:          System Environment/Libraries
 License:        MIT
 URL:            http://github.com/joyent/http-parser
-# download from https://github.com/joyent/http-parser/tarball/%%{version}
-Source0:        joyent-http-parser-v%{version}-%{github_seq}-g%{git_commit_hash}.tar.gz
+
+Source0:        https://github.com/nodejs/http-parser/archive/v%{version}.tar.gz
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 # Build shared library with SONAME using gyp and remove -O flags so optflags take over
@@ -43,7 +40,7 @@ Development headers and libraries for http-parser.
 
 
 %prep
-%setup -q -n joyent-http-parser-%{git_commit_hash}
+%setup -q -n http-parser-%{version}
 %patch1
 
 
@@ -91,7 +88,8 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %{_libdir}/libhttp_parser.so.*
 %{_libdir}/libhttp_parser_strict.so.*
-%doc AUTHORS CONTRIBUTIONS LICENSE-MIT README.md
+%doc AUTHORS README.md
+%license LICENSE-MIT
 
 
 %files devel
@@ -102,6 +100,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Dec 01 2015 Stephen Gallagher <sgallagh@redhat.com> 2.6.0-1
+- Upgrade to version 2.6.0
+- Change to new upstream at https://github.com/nodejs/http-parser/
+
 * Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.0-9.20121128gitcd01361
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
@@ -164,3 +166,4 @@ rm -rf %{buildroot}
 
 * Fri Sep 17 2010 Lubomir Rintel <lkundrak@v3.sk> - 0.3-1.20100911git
 - Initial packaging
+
