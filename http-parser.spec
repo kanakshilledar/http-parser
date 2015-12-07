@@ -8,7 +8,7 @@
 
 Name:           http-parser
 Version:        %{somajor}.%{sominor}
-Release:        4.%{git_date}git%{git_commit_hash}%{?dist}
+Release:        5.%{git_date}git%{git_commit_hash}%{?dist}
 Summary:        HTTP request/response parser for C
 
 Group:          System Environment/Libraries
@@ -23,6 +23,7 @@ BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 Patch1:		http-parser-gyp-sharedlib.patch
 
 BuildRequires:	gyp
+BuildRequires:	util-linux
 
 %description
 This is a parser for HTTP messages written in C. It parses both requests and
@@ -102,6 +103,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Dec 07 2015 Dan Horák <dan[at]danny.cz>  - 2.0-5.20121128gitcd01361
+- Update BR
+
 * Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.0-4.20121128gitcd01361
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
