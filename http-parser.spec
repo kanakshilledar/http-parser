@@ -5,7 +5,7 @@
 
 Name:           http-parser
 Version:        %{somajor}.%{sominor}.%{sopoint}
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        HTTP request/response parser for C
 
 Group:          System Environment/Libraries
@@ -100,6 +100,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2.6.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
 * Tue Dec 01 2015 Stephen Gallagher <sgallagh@redhat.com> 2.6.0-1
 - Upgrade to version 2.6.0
 - Change to new upstream at https://github.com/nodejs/http-parser/
