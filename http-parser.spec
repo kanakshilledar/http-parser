@@ -1,7 +1,7 @@
 # we use the upstream version from http_parser.h as the SONAME
 %global somajor 2
-%global sominor 6
-%global sopoint 0
+%global sominor 7
+%global sopoint 1
 
 Name:           http-parser
 Version:        %{somajor}.%{sominor}.%{sopoint}
@@ -100,6 +100,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Aug 16 2016 Stephen Gallagher <sgallagh@redhat.com> - 2.7.1-2
+- Upgrade to version 2.7.1
+
 * Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2.6.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
