@@ -5,7 +5,7 @@
 
 Name:           http-parser
 Version:        %{somajor}.%{sominor}.%{sopoint}
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        HTTP request/response parser for C
 
 Group:          System Environment/Libraries
@@ -18,6 +18,7 @@ BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 # Build shared library with SONAME using gyp and remove -O flags so optflags take over
 # TODO: do this nicely upstream
 Patch1:		http-parser-gyp-sharedlib.patch
+Patch2:		http-parser-status.patch
 
 BuildRequires:	gyp
 
@@ -40,8 +41,7 @@ Development headers and libraries for http-parser.
 
 
 %prep
-%setup -q -n http-parser-%{version}
-%patch1
+%autosetup -n http-parser-%{version}
 
 
 %build
@@ -100,6 +100,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Oct 25 2016 Nathaniel McCallum <npmccallum@redhat.com> - 2.7.1-3
+- Add (upstreamed) status code patch
+
 * Tue Aug 16 2016 Stephen Gallagher <sgallagh@redhat.com> - 2.7.1-2
 - Upgrade to version 2.7.1
 
