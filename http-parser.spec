@@ -1,26 +1,24 @@
 # we use the upstream version from http_parser.h as the SONAME
 %global somajor 2
-%global sominor 0
-
-%global git_date 20121128
-%global git_commit_hash cd01361
-%global github_seq 7
+%global sominor 7
+%global sopoint 1
 
 Name:           http-parser
-Version:        %{somajor}.%{sominor}
-Release:        5.%{git_date}git%{git_commit_hash}%{?dist}
+Version:        %{somajor}.%{sominor}.%{sopoint}
+Release:        3%{?dist}
 Summary:        HTTP request/response parser for C
 
 Group:          System Environment/Libraries
 License:        MIT
 URL:            http://github.com/joyent/http-parser
-# download from https://github.com/joyent/http-parser/tarball/%%{version}
-Source0:        joyent-http-parser-v%{version}-%{github_seq}-g%{git_commit_hash}.tar.gz
+
+Source0:        https://github.com/nodejs/http-parser/archive/v%{version}.tar.gz
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 # Build shared library with SONAME using gyp and remove -O flags so optflags take over
 # TODO: do this nicely upstream
 Patch1:		http-parser-gyp-sharedlib.patch
+Patch2:		http-parser-status.patch
 
 BuildRequires:	gyp
 BuildRequires:	util-linux
@@ -44,8 +42,7 @@ Development headers and libraries for http-parser.
 
 
 %prep
-%setup -q -n joyent-http-parser-%{git_commit_hash}
-%patch1
+%autosetup -n http-parser-%{version}
 
 
 %build
@@ -92,7 +89,8 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %{_libdir}/libhttp_parser.so.*
 %{_libdir}/libhttp_parser_strict.so.*
-%doc AUTHORS CONTRIBUTIONS LICENSE-MIT README.md
+%doc AUTHORS README.md
+%license LICENSE-MIT
 
 
 %files devel
@@ -103,8 +101,33 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Mon Dec 07 2015 Dan Horák <dan[at]danny.cz>  - 2.0-5.20121128gitcd01361
-- Update BR
+* Tue Oct 25 2016 Nathaniel McCallum <npmccallum@redhat.com> - 2.7.1-3
+- Add (upstreamed) status code patch
+
+* Tue Aug 16 2016 Stephen Gallagher <sgallagh@redhat.com> - 2.7.1-2
+- Upgrade to version 2.7.1
+
+* Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2.6.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
+* Tue Dec 01 2015 Stephen Gallagher <sgallagh@redhat.com> 2.6.0-1
+- Upgrade to version 2.6.0
+- Change to new upstream at https://github.com/nodejs/http-parser/
+
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.0-9.20121128gitcd01361
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
+* Sat May 02 2015 Kalev Lember <kalevlember@gmail.com> - 2.0-8.20121128gitcd01361
+- Rebuilt for GCC 5 C++11 ABI change
+
+* Sat Aug 16 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.0-7.20121128gitcd01361
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.0-6.20121128gitcd01361
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
+* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.0-5.20121128gitcd01361
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 
 * Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.0-4.20121128gitcd01361
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
@@ -153,3 +176,4 @@ rm -rf %{buildroot}
 
 * Fri Sep 17 2010 Lubomir Rintel <lkundrak@v3.sk> - 0.3-1.20100911git
 - Initial packaging
+
