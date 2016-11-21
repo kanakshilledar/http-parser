@@ -5,23 +5,18 @@
 
 Name:           http-parser
 Version:        %{somajor}.%{sominor}.%{sopoint}
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        HTTP request/response parser for C
 
-Group:          System Environment/Libraries
 License:        MIT
-URL:            http://github.com/joyent/http-parser
+URL:            https://github.com/nodejs/http-parser
+Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 
-Source0:        https://github.com/nodejs/http-parser/archive/v%{version}.tar.gz
-BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+# https://github.com/nodejs/http-parser/commit/335850f6b868d3411968cbf5a4d59fe619dee36f
+Patch0001:      %{name}-0001-parser-HTTP_STATUS_MAP-XX-and-enum-http_status.patch
 
-# Build shared library with SONAME using gyp and remove -O flags so optflags take over
-# TODO: do this nicely upstream
-Patch1:		http-parser-gyp-sharedlib.patch
-Patch2:		http-parser-status.patch
-
-BuildRequires:	gyp
-BuildRequires:	util-linux
+BuildRequires:  gcc
+BuildRequires:  cmake
 
 %description
 This is a parser for HTTP messages written in C. It parses both requests and
@@ -31,76 +26,84 @@ be interrupted at anytime. Depending on your architecture, it only requires
 about 40 bytes of data per message stream (in a web server that is per
 connection).
 
-
 %package devel
-Group:          Development/Libraries
 Summary:        Development headers and libraries for http-parser
-Requires:       %{name} = %{version}-%{release}
+Requires:       %{name}%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description devel
 Development headers and libraries for http-parser.
 
-
 %prep
-%autosetup -n http-parser-%{version}
+%autosetup -p1
+# TODO: try to send upstream?
+cat > CMakeLists.txt << EOF
+cmake_minimum_required (VERSION 2.8.5)
+project (http-parser C)
+include (GNUInstallDirs)
 
+set (SRCS http_parser.c)
+set (HDRS http_parser.h)
+set (TEST_SRCS test.c)
+
+# Non-Strict version
+add_library (http_parser \${SRCS})
+target_compile_definitions (http_parser
+                            PUBLIC -DHTTP_PARSER_STRICT=0)
+add_executable (test-nonstrict \${TEST_SRCS})
+target_link_libraries (test-nonstrict http_parser)
+# Strict version
+add_library (http_parser_strict \${SRCS})
+target_compile_definitions (http_parser_strict
+                            PUBLIC -DHTTP_PARSER_STRICT=1)
+add_executable (test-strict \${TEST_SRCS})
+target_link_libraries (test-strict http_parser_strict)
+
+set_target_properties (http_parser http_parser_strict
+                       PROPERTIES
+                           SOVERSION %{somajor}
+                           VERSION %{version})
+
+install (TARGETS http_parser http_parser_strict
+         LIBRARY DESTINATION \${CMAKE_INSTALL_LIBDIR})
+install (FILES \${HDRS}
+         DESTINATION \${CMAKE_INSTALL_INCLUDEDIR})
+
+enable_testing ()
+add_test (NAME test-nonstrict COMMAND test-nonstrict)
+add_test (NAME test-strict COMMAND test-strict)
+EOF
 
 %build
-# TODO: fix -fPIC upstream
-export CFLAGS='%{optflags} -fPIC'
-gyp -f make --depth=`pwd` http_parser.gyp
-make %{?_smp_mflags} BUILDTYPE=Release 
-
+mkdir %{_target_platform}
+pushd %{_target_platform}
+  %cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
+popd
+%make_build -C %{_target_platform}
 
 %install
-rm -rf %{buildroot}
-
-install -d %{buildroot}%{_includedir}
-install -d %{buildroot}%{_libdir}
-
-install -pm644 http_parser.h %{buildroot}%{_includedir}
-
-#install regular variant
-install out/Release/lib.target/libhttp_parser.so.%{somajor} %{buildroot}%{_libdir}/libhttp_parser.so.%{somajor}.%{sominor}
-ln -sf libhttp_parser.so.%{somajor}.%{sominor} %{buildroot}%{_libdir}/libhttp_parser.so.%{somajor}
-ln -sf libhttp_parser.so.%{somajor}.%{sominor} %{buildroot}%{_libdir}/libhttp_parser.so
-
-#install strict variant
-install out/Release/lib.target/libhttp_parser_strict.so.%{somajor} %{buildroot}%{_libdir}/libhttp_parser_strict.so.%{somajor}.%{sominor}
-ln -sf libhttp_parser_strict.so.%{somajor}.%{sominor} %{buildroot}%{_libdir}/libhttp_parser_strict.so.%{somajor}
-ln -sf libhttp_parser_strict.so.%{somajor}.%{sominor} %{buildroot}%{_libdir}/libhttp_parser_strict.so
-
+%make_install -C %{_target_platform}
 
 %check
-export LD_LIBRARY_PATH='./out/Release/lib.target' 
-./out/Release/test-nonstrict
-./out/Release/test-strict
-
-
-%clean
-rm -rf %{buildroot}
-
+make test -C %{_target_platform}
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
-
 %files
-%defattr(-,root,root,-)
 %{_libdir}/libhttp_parser.so.*
 %{_libdir}/libhttp_parser_strict.so.*
 %doc AUTHORS README.md
 %license LICENSE-MIT
 
-
 %files devel
-%defattr(-,root,root,-)
-%{_includedir}/*
+%{_includedir}/http_parser.h
 %{_libdir}/libhttp_parser.so
 %{_libdir}/libhttp_parser_strict.so
 
-
 %changelog
+* Mon Nov 21 2016 Igor Gnatenko <i.gnatenko.brain@gmail.com> - 2.7.1-4
+- Use CMake buildsystem
+
 * Tue Oct 25 2016 Nathaniel McCallum <npmccallum@redhat.com> - 2.7.1-3
 - Add (upstreamed) status code patch
 

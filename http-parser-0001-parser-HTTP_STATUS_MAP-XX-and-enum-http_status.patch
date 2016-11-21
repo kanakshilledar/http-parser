@@ -96,3 +96,6 @@ index ea26394..45c72a0 100644
  /* Request Methods */
  #define HTTP_METHOD_MAP(XX)         \
    XX(0,  DELETE,      DELETE)       \
+-- 
+2.10.2
+
