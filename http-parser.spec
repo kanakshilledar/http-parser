@@ -5,7 +5,7 @@
 
 Name:           http-parser
 Version:        %{somajor}.%{sominor}.%{sopoint}
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        HTTP request/response parser for C
 
 License:        MIT
@@ -101,6 +101,9 @@ make test -C %{_target_platform}
 %{_libdir}/libhttp_parser_strict.so
 
 %changelog
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.7.1-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Mon Nov 21 2016 Igor Gnatenko <i.gnatenko.brain@gmail.com> - 2.7.1-4
 - Use CMake buildsystem
 
