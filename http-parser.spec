@@ -5,7 +5,7 @@
 
 Name:           http-parser
 Version:        %{somajor}.%{sominor}.%{sopoint}
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        HTTP request/response parser for C
 
 License:        MIT
@@ -86,8 +86,7 @@ popd
 %check
 make test -C %{_target_platform}
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
+%ldconfig_scriptlets
 
 %files
 %{_libdir}/libhttp_parser.so.*
@@ -101,6 +100,9 @@ make test -C %{_target_platform}
 %{_libdir}/libhttp_parser_strict.so
 
 %changelog
+* Sat Feb 03 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 2.7.1-8
+- Switch to %%ldconfig_scriptlets
+
 * Wed Aug 02 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.7.1-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
