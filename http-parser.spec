@@ -1,22 +1,14 @@
-# we use the upstream version from http_parser.h as the SONAME
-%global somajor 2
-%global sominor 7
-%global sopoint 1
-
 Name:           http-parser
-Version:        %{somajor}.%{sominor}.%{sopoint}
-Release:        9%{?dist}
+Version:        2.8.0
+Release:        1%{?dist}
 Summary:        HTTP request/response parser for C
 
 License:        MIT
 URL:            https://github.com/nodejs/http-parser
 Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 
-# https://github.com/nodejs/http-parser/commit/335850f6b868d3411968cbf5a4d59fe619dee36f
-Patch0001:      %{name}-0001-parser-HTTP_STATUS_MAP-XX-and-enum-http_status.patch
-
+BuildRequires:  meson
 BuildRequires:  gcc
-BuildRequires:  cmake
 
 %description
 This is a parser for HTTP messages written in C. It parses both requests and
@@ -36,63 +28,39 @@ Development headers and libraries for http-parser.
 %prep
 %autosetup -p1
 # TODO: try to send upstream?
-cat > CMakeLists.txt << EOF
-cmake_minimum_required (VERSION 2.8.5)
-project (http-parser C)
-include (GNUInstallDirs)
-
-set (SRCS http_parser.c)
-set (HDRS http_parser.h)
-set (TEST_SRCS test.c)
-
-# Non-Strict version
-add_library (http_parser \${SRCS})
-target_compile_definitions (http_parser
-                            PUBLIC -DHTTP_PARSER_STRICT=0)
-add_executable (test-nonstrict \${TEST_SRCS})
-target_link_libraries (test-nonstrict http_parser)
-# Strict version
-add_library (http_parser_strict \${SRCS})
-target_compile_definitions (http_parser_strict
-                            PUBLIC -DHTTP_PARSER_STRICT=1)
-add_executable (test-strict \${TEST_SRCS})
-target_link_libraries (test-strict http_parser_strict)
-
-set_target_properties (http_parser http_parser_strict
-                       PROPERTIES
-                           SOVERSION %{somajor}
-                           VERSION %{version})
-
-install (TARGETS http_parser http_parser_strict
-         LIBRARY DESTINATION \${CMAKE_INSTALL_LIBDIR})
-install (FILES \${HDRS}
-         DESTINATION \${CMAKE_INSTALL_INCLUDEDIR})
-
-enable_testing ()
-add_test (NAME test-nonstrict COMMAND test-nonstrict)
-add_test (NAME test-strict COMMAND test-strict)
+cat > meson.build << EOF
+project('%{name}', 'c', version : '%{version}')
+install_headers('http_parser.h')
+foreach x : [['http_parser',        ['-DHTTP_PARSER_STRICT=0']],
+             ['http_parser_strict', ['-DHTTP_PARSER_STRICT=1']]]
+  lib = library(x.get(0), 'http_parser.c',
+                c_args : x.get(1),
+                version : '%{version}',
+                install : true)
+  test('test-@0@'.format(x.get(0)),
+       executable('test-@0@'.format(x.get(0)), 'test.c',
+                  c_args : x.get(1),
+                  link_with : lib))
+endforeach
 EOF
 
 %build
-mkdir %{_target_platform}
-pushd %{_target_platform}
-  %cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
-popd
-%make_build -C %{_target_platform}
+%meson
+%meson_build
 
 %install
-%make_install -C %{_target_platform}
+%meson_install
 
 %check
-make test -C %{_target_platform}
+%meson_test
 
 %ldconfig_scriptlets
 
 %files
+%license LICENSE-MIT
+%doc AUTHORS README.md
 %{_libdir}/libhttp_parser.so.*
 %{_libdir}/libhttp_parser_strict.so.*
-%doc AUTHORS README.md
-%license LICENSE-MIT
 
 %files devel
 %{_includedir}/http_parser.h
@@ -100,6 +68,10 @@ make test -C %{_target_platform}
 %{_libdir}/libhttp_parser_strict.so
 
 %changelog
+* Sat Feb 10 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 2.8.0-1
+- Update to 2.8.0
+- Switch to meson buildsystem
+
 * Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.7.1-9
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 
