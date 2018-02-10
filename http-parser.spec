@@ -40,7 +40,8 @@ foreach x : [['http_parser',        ['-DHTTP_PARSER_STRICT=0']],
   test('test-@0@'.format(x.get(0)),
        executable('test-@0@'.format(x.get(0)), 'test.c',
                   c_args : x.get(1),
-                  link_with : lib))
+                  link_with : lib),
+       timeout : 60)
 endforeach
 EOF
 
@@ -52,13 +53,7 @@ EOF
 %meson_install
 
 %check
-# Timeouts on ARM
-%meson_test \
-  %ifarch %{arm}
-    || :
-  %else
-    ;
-  %endif
+%meson_test
 
 %ldconfig_scriptlets
 
