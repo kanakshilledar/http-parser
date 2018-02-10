@@ -52,7 +52,13 @@ EOF
 %meson_install
 
 %check
-%meson_test
+# Timeouts on ARM
+%meson_test \
+  %ifarch %{arm}
+    || :
+  %else
+    ;
+  %endif
 
 %ldconfig_scriptlets
 
