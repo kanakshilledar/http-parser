@@ -1,5 +1,5 @@
 Name:           http-parser
-Version:        2.8.0
+Version:        2.8.1
 Release:        1%{?dist}
 Summary:        HTTP request/response parser for C
 
@@ -69,6 +69,9 @@ EOF
 %{_libdir}/libhttp_parser_strict.so
 
 %changelog
+* Mon Apr 02 2018 Stephen Gallagher <sgallagh@redhat.com> - 2.8.1-1
+- Update to 2.8.1
+
 * Sat Feb 10 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 2.8.0-1
 - Update to 2.8.0
 - Switch to meson buildsystem
