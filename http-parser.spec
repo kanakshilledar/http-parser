@@ -1,6 +1,6 @@
 Name:           http-parser
-Version:        2.8.1
-Release:        2%{?dist}
+Version:        2.9.0
+Release:        1%{?dist}
 Summary:        HTTP request/response parser for C
 
 License:        MIT
