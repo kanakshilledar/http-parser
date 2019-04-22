@@ -1,6 +1,6 @@
 Name:           http-parser
-Version:        2.9.1
-Release:        2%{?dist}
+Version:        2.9.2
+Release:        1%{?dist}
 Summary:        HTTP request/response parser for C
 
 License:        MIT
@@ -69,6 +69,9 @@ EOF
 %{_libdir}/libhttp_parser_strict.so
 
 %changelog
+* Mon Apr 22 2019 Stephen Gallagher <sgallagh@redhat.com> - 2.9.2-1
+- Update to 2.9.2
+
 * Tue Apr 16 2019 Adam Williamson <awilliam@redhat.com> - 2.9.1-2
 - Rebuild with Meson fix for #1699099
 
