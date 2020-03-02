@@ -1,11 +1,13 @@
 Name:           http-parser
 Version:        2.9.3
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        HTTP request/response parser for C
 
 License:        MIT
 URL:            https://github.com/nodejs/http-parser
 Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
+# https://github.com/nodejs/http-parser/pull/483
+Patch0001:      0001-url-treat-empty-port-as-default.patch
 
 BuildRequires:  meson
 BuildRequires:  gcc
@@ -69,6 +71,9 @@ EOF
 %{_libdir}/libhttp_parser_strict.so
 
 %changelog
+* Mon Mar 02 2020 Igor Raits <ignatenkobrain@fedoraproject.org> - 2.9.3-2
+- Include patch to work with colon but no port
+
 * Wed Jan 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 2.9.2-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
 
