@@ -1,6 +1,6 @@
 Name:           http-parser
-Version:        2.9.3
-Release:        2%{?dist}
+Version:        2.9.4
+Release:        1%{?dist}
 Summary:        HTTP request/response parser for C
 
 License:        MIT
@@ -71,6 +71,9 @@ EOF
 %{_libdir}/libhttp_parser_strict.so
 
 %changelog
+* Wed Apr 15 2020 Igor Raits <ignatenkobrain@fedoraproject.org> - 2.9.4-1
+- Update to 2.9.4
+
 * Mon Mar 02 2020 Igor Raits <ignatenkobrain@fedoraproject.org> - 2.9.3-2
 - Include patch to work with colon but no port
 
