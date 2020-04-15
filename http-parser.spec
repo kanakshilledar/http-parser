@@ -29,6 +29,10 @@ Development headers and libraries for http-parser.
 
 %prep
 %autosetup -p1
+%ifarch %{arm}
+# https://github.com/nodejs/http-parser/issues/507
+sed -i -e "/sizeof(http_parser)/d" test.c
+%endif
 # TODO: try to send upstream?
 cat > meson.build << EOF
 project('%{name}', 'c', version : '%{version}')
