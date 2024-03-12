@@ -1,6 +1,6 @@
 Name:           http-parser
 Version:        2.9.4
-Release:        11%{?dist}
+Release:        12%{?dist}
 Summary:        HTTP request/response parser for C
 
 License:        MIT
@@ -59,7 +59,12 @@ EOF
 %meson_install
 
 %check
+%ifarch riscv64
+%meson_test --timeout-multiplier=10
+%else
 %meson_test
+%endif
+
 
 %ldconfig_scriptlets
 
@@ -75,6 +80,9 @@ EOF
 %{_libdir}/libhttp_parser_strict.so
 
 %changelog
+* Tue Mar 12 2024 Kanak Shilledar <kanakshilledar111@protonmail.com> - 2.9.4-12
+- http-parser: add timeout for riscv64 arch
+
 * Wed Jan 24 2024 Fedora Release Engineering <releng@fedoraproject.org> - 2.9.4-11
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_40_Mass_Rebuild
 
